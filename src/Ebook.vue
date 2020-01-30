@@ -1,23 +1,6 @@
 <template>
   <div class="ebook">
-    <transition name="slide-down">
-      <div class="title-wrapper" v-show="ifMenuAndTitleShow">
-        <div class="left">
-          <span class="icon-back icon"></span>
-        </div>
-        <div class="right">
-          <div class="icon-wrapper">
-            <span class="icon-cart icon"></span>
-          </div>
-          <div class="icon-wrapper">
-            <span class="icon-person icon"></span>
-          </div>
-          <div class="icon-wrapper">
-            <span class="icon-more icon"></span>
-          </div>
-        </div>
-      </div>
-    </transition>
+    <TitleBar :ifMenuAndTitleShow="ifMenuAndTitleShow"></TitleBar>
     <div class="read-wrapper">
       <div id="read"></div>
       <div class="mask">
@@ -26,26 +9,14 @@
         <div class="right" @click="nextPage"></div>
       </div>
     </div>
-    <transition name="slide-up">
-      <div class="menu-wrapper" v-show="ifMenuAndTitleShow">
-        <div class="icon-wrapper">
-          <span class="icon-menu icon"></span>
-        </div>
-        <div class="icon-wrapper">
-          <span class="icon-progress icon"></span>
-        </div>
-        <div class="icon-wrapper">
-          <span class="icon-bright icon"></span>
-        </div>
-        <div class="icon-wrapper">
-          <span class="icon-a icon">A</span>
-        </div>
-      </div>
-    </transition>
+    <MenuBar :ifMenuAndTitleShow="ifMenuAndTitleShow"></MenuBar>
   </div>
 </template>
 
 <script>
+import TitleBar from './components/TitleBar'
+import MenuBar from './components/MenuBar'
+
 import Epub from "epubjs";
 
 const EBOOK_URL = "ex.epub";
@@ -88,6 +59,10 @@ export default {
   },
   mounted() {
     this.showEpub();
+  },
+  components: {
+    TitleBar,
+    MenuBar
   }
 };
 </script>
@@ -96,48 +71,7 @@ export default {
 @import "assets/styles/global.scss";
 .ebook {
   position: relative;
-  .title-wrapper {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: px2rem(48);
-    z-index: 101;
-    background-color: #fff;
-    box-shadow: 0 px2rem(8) px2rem(8) rgba(0, 0, 0, 0.15);
-    display: flex;
-    .left {
-      flex: 0 0 px2rem(60);
-      @include center;
-    }
-    .right {
-      flex: 1;
-      display: flex;
-      justify-content: flex-end;
-      .icon-wrapper {
-        flex: 0 0 px2rem(40);
-        @include center;
-        .icon-cart {
-          font-size: px2rem(22);
-        }
-      }
-    }
-    // // 动画效果 - 进入前, 移出后
-    // &.slide-down-enter,
-    // &.slide-down-leave-to {
-    //   transform: translate3d(0, -100%, 0);
-    // }
-    // // 动画效果 - 进入后, 移出前
-    // &.slide-down-enter-to,
-    // &.slide-down-leave {
-    //   transform: translate3d(0, 0, 0);
-    // }
-    // // 动画效果 - 进入过程, 移出过程
-    // &.slide-down-enter-active,
-    // &.slide-down-leave-active {
-    //   transition: all 0.35s linear;
-    // }
-  }
+
   .read-wrapper {
     .mask {
       position: absolute;
@@ -157,42 +91,6 @@ export default {
         flex: 0 0 px2rem(100);
       }
     }
-  }
-  .menu-wrapper {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: px2rem(48);
-    z-index: 101;
-    background-color: #fff;
-    box-shadow: 0 px2rem(-8) px2rem(8) rgba(0, 0, 0, 0.15);
-    display: flex;
-    .icon-wrapper {
-      flex: 1;
-      @include center;
-      .icon-progress {
-        font-size: px2rem(28);
-      }
-      .icon-bright {
-        font-size: px2rem(24);
-      }
-    }
-    // // 动画效果 - 进入前, 移出后
-    // &.slide-up-enter,
-    // &.slide-down-leave-to {
-    //   transform: translate3d(0, 100%, 0);
-    // }
-    // // 动画效果 - 进入后, 移出前
-    // &.slide-up-enter-to,
-    // &.slide-up-leave {
-    //   transform: translate3d(0, 0, 0);
-    // }
-    // // 动画效果 - 进入过程, 移出过程
-    // &.slide-up-enter-active,
-    // &.slide-up-leave-active {
-    //   transition: all 0.35s linear;
-    // }
   }
 }
 </style>
