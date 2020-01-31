@@ -15,6 +15,9 @@
       :fontSizeList="fontSizeList"
       :defalutFontSize="defalutFontSize"
       @setFontSize="setFontSize"
+      :themeList="themeList"
+      :defaultTheme="defaultTheme"
+      @setTheme="setTheme"
     ></MenuBar>
   </div>
 </template>
@@ -40,6 +43,45 @@ export default {
         { fontSize: 20 },
         { fontSize: 22 },
         { fontSize: 24 }
+      ],
+      defaultTheme: 0,
+      themeList: [
+        {
+          name: "default",
+          style: {
+            body: {
+              color: "#000000",
+              background: "#ffffff"
+            }
+          }
+        },
+        {
+          name: "eye",
+          style: {
+            body: {
+              color: "#000000",
+              background: "#ceeaba"
+            }
+          }
+        },
+        {
+          name: "night",
+          style: {
+            body: {
+              color: "#ffffff",
+              background: "#000000"
+            }
+          }
+        },
+        {
+          name: "gold",
+          style: {
+            body: {
+              color: "#000000",
+              background: "rgb(241, 236, 226)"
+            }
+          }
+        }
       ]
     };
   },
@@ -56,8 +98,16 @@ export default {
       });
       this.rendition.display();
 
+      // 获取Theme对象
       this.themes = this.rendition.themes;
-      this.setFontSize(this.defalutFontSize)
+
+      // 设置默认字体字号
+      this.setFontSize(this.defalutFontSize);
+
+      // 注册主题样式
+      this.registerTheme()
+      // 配置默认主题样式
+      this.themes.select(this.defaultTheme)
     },
     // 上一页
     prevPage() {
@@ -83,8 +133,19 @@ export default {
     setFontSize(fontSize) {
       if (this.themes) {
         this.defalutFontSize = fontSize;
-        this.themes.fontSize(fontSize + 'px');
+        this.themes.fontSize(fontSize + "px");
       }
+    },
+    // 注册主题样式
+    registerTheme() {
+      this.themeList.forEach(theme => {
+        this.themes.register(theme.name, theme.style)
+      })
+    },
+    // 设置主题样式
+    setTheme(index) {
+      this.themes.select(this.themeList[index].name)
+      this.defaultTheme = index
     }
   },
   mounted() {
