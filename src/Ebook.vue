@@ -1,6 +1,6 @@
 <template>
   <div class="ebook">
-    <TitleBar :ifMenuAndTitleShow="ifMenuAndTitleShow"></TitleBar>
+    <TitleBar :ifTitleAndMenuShow="ifTitleAndMenuShow"></TitleBar>
     <div class="read-wrapper">
       <div id="read"></div>
       <div class="mask">
@@ -9,13 +9,19 @@
         <div class="right" @click="nextPage"></div>
       </div>
     </div>
-    <MenuBar :ifMenuAndTitleShow="ifMenuAndTitleShow"></MenuBar>
+    <MenuBar
+      ref="menuBar"
+      :ifTitleAndMenuShow="ifTitleAndMenuShow"
+      :fontSizeList="fontSizeList"
+      :defalutFontSize="defalutFontSize"
+      @setFontSize="setFontSize"
+    ></MenuBar>
   </div>
 </template>
 
 <script>
-import TitleBar from './components/TitleBar'
-import MenuBar from './components/MenuBar'
+import TitleBar from "./components/TitleBar";
+import MenuBar from "./components/MenuBar";
 
 import Epub from "epubjs";
 
@@ -24,7 +30,17 @@ const EBOOK_URL = "ex.epub";
 export default {
   data() {
     return {
-      ifMenuAndTitleShow: false
+      ifTitleAndMenuShow: false,
+      defalutFontSize: 16,
+      fontSizeList: [
+        { fontSize: 12 },
+        { fontSize: 14 },
+        { fontSize: 16 },
+        { fontSize: 18 },
+        { fontSize: 20 },
+        { fontSize: 22 },
+        { fontSize: 24 }
+      ]
     };
   },
   methods: {
@@ -39,6 +55,9 @@ export default {
         height: window.innerHeight
       });
       this.rendition.display();
+
+      this.themes = this.rendition.themes;
+      this.setFontSize(this.defalutFontSize)
     },
     // 上一页
     prevPage() {
@@ -54,7 +73,18 @@ export default {
     },
     // 切换标题栏和菜单栏显示状态
     toggleTitleAndMenu() {
-      this.ifMenuAndTitleShow = !this.ifMenuAndTitleShow;
+      this.ifTitleAndMenuShow = !this.ifTitleAndMenuShow;
+
+      if (!this.ifTitleAndMenuShow) {
+        this.$refs.menuBar.hideSetting();
+      }
+    },
+    // 设置字体字号
+    setFontSize(fontSize) {
+      if (this.themes) {
+        this.defalutFontSize = fontSize;
+        this.themes.fontSize(fontSize + 'px');
+      }
     }
   },
   mounted() {

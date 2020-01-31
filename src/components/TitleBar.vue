@@ -1,6 +1,6 @@
 <template>
   <transition name="slide-down">
-    <div class="title-wrapper" v-show="ifMenuAndTitleShow">
+    <div class="title-wrapper" v-show="ifTitleAndMenuShow">
       <div class="left">
         <span class="icon-back icon"></span>
       </div>
@@ -22,7 +22,7 @@
 <script>
 export default {
   props: {
-    ifMenuAndTitleShow: {
+    ifTitleAndMenuShow: {
       type: Boolean,
       default: false
     }
