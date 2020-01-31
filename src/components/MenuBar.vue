@@ -7,7 +7,7 @@
         :class="{'hide-box-shadow': ifSettingShow || !ifTitleAndMenuShow}"
       >
         <div class="icon-wrapper">
-          <span class="icon-menu icon"></span>
+          <span class="icon-menu icon" @click="showSetting(3)"></span>
         </div>
         <div class="icon-wrapper">
           <span class="icon-progress icon" @click="showSetting(2)"></span>
@@ -26,7 +26,12 @@
         <div class="setting-font-size" v-if="showTag === 0">
           <div class="preview" :style="{fontSize: fontSizeList[0].fontSize + 'px'}">A</div>
           <div class="select">
-            <div class="select-wrapper" @click="setFontSize(item.fontSize)" v-for="(item, index) in fontSizeList" :key="index">
+            <div
+              class="select-wrapper"
+              @click="setFontSize(item.fontSize)"
+              v-for="(item, index) in fontSizeList"
+              :key="index"
+            >
               <div class="line"></div>
               <div class="point-wrapper">
                 <div class="point" v-show="defalutFontSize === item.fontSize">
@@ -43,14 +48,34 @@
           >A</div>
         </div>
         <div class="setting-theme" v-else-if="showTag === 1">
-          <div class="setting-theme-item" v-for="(item, index) in this.themeList" :key="index" @click="setTheme(index)">
-            <div class="preview" :style="{ background: item.style.body.background }" :class="{'no-border': item.style.body.background !== '#ffffff'}"></div>
+          <div
+            class="setting-theme-item"
+            v-for="(item, index) in this.themeList"
+            :key="index"
+            @click="setTheme(index)"
+          >
+            <div
+              class="preview"
+              :style="{ background: item.style.body.background }"
+              :class="{'no-border': item.style.body.background !== '#ffffff'}"
+            ></div>
             <div class="text" :class="{ 'selected': index === defaultTheme }">{{ item.name }}</div>
           </div>
         </div>
         <div class="setting-progress" v-else-if="showTag === 2">
           <div class="progress-wrapper">
-            <input class="progress" type="range" min="0" max="100" step="0.1" @change="onProgressChange($event.target.value)" @input="onProgressInput($event.target.value)" :value="progress" :disable="!bookAvailable" ref="progress">
+            <input
+              class="progress"
+              type="range"
+              min="0"
+              max="100"
+              step="0.1"
+              @change="onProgressChange($event.target.value)"
+              @input="onProgressInput($event.target.value)"
+              :value="progress"
+              :disable="!bookAvailable"
+              ref="progress"
+            />
           </div>
           <div class="text-wrapper">
             <span>{{ bookAvailable ? progress + '%' : '加载中...' }}</span>
@@ -58,10 +83,18 @@
         </div>
       </div>
     </transition>
+
+    <ContentView :ifShowContent="ifShowContent" v-show="ifShowContent" :navigation="navigation" :bookAvailable="bookAvailable" @jumpTo="jumpTo"></ContentView>
+
+    <transition name="fade">
+      <div class="content-mask" v-show="ifShowContent" @click="hideContent"></div>
+    </transition>
   </div>
 </template>
 
 <script>
+import ContentView from "../components/Content.vue";
+
 export default {
   props: {
     ifTitleAndMenuShow: {
@@ -72,11 +105,16 @@ export default {
     fontSizeList: Array,
     defaultTheme: Number,
     themeList: Array,
-    bookAvailable: Boolean
+    bookAvailable: Boolean,
+    navigation: Object
+  },
+  components: {
+    ContentView
   },
   data() {
     return {
       ifSettingShow: false,
+      ifShowContent: false,
       showTag: -1,
       progress: 0
     };
@@ -84,8 +122,13 @@ export default {
   methods: {
     // 显示设置面板
     showSetting(tag) {
-      this.ifSettingShow = true;
       this.showTag = tag;
+      if (this.showTag === 3) {
+        this.ifSettingShow = false;
+        this.ifShowContent = true;
+      } else {
+        this.ifSettingShow = true;
+      }
     },
     // 隐藏设置面板
     hideSetting() {
@@ -93,22 +136,29 @@ export default {
     },
     // 设置字体字号
     setFontSize(fontSize) {
-      this.$emit("setFontSize", fontSize) // 调用父组件方法
+      this.$emit("setFontSize", fontSize); // 调用父组件方法
     },
     // 设置主题样式
     setTheme(index) {
-      this.$emit('setTheme', index)
+      this.$emit("setTheme", index);
     },
     // 进度条拖动时触发事件
     // 变更进度条颜色样式
     onProgressInput(progress) {
-      this.progress = progress
-      this.$refs.progress.style.backgroundSize = `${this.progress}% 100%`
+      this.progress = progress;
+      this.$refs.progress.style.backgroundSize = `${this.progress}% 100%`;
     },
     // 进度条被松开时触发事件
     // 调用父组件 onProgressChange() 方法根据进度条数值跳转到指定页面
     onProgressChange(progress) {
-      this.$emit('onProgressChange', progress)
+      this.$emit("onProgressChange", progress);
+    },
+    // 隐藏目录
+    hideContent() {
+      this.ifShowContent = false;
+    },
+    jumpTo(href) {
+      this.$emit('jumpTo', href)
     }
   }
 };
@@ -253,10 +303,11 @@ export default {
           width: 100%;
           -webkit-appearance: none;
           height: px2rem(2);
-          background: -webkit-linear-gradient(#999999, #999999) no-repeat, #dddddd;
+          background: -webkit-linear-gradient(#999999, #999999) no-repeat,
+            #dddddd;
           background-size: 0 100%;
           &:focus {
-            outline: none
+            outline: none;
           }
           &::-webkit-slider-thumb {
             -webkit-appearance: none;
@@ -279,6 +330,16 @@ export default {
         text-align: center;
       }
     }
+  }
+  .content-mask {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 101;
+    display: flex;
+    width: 100%;
+    height: 100%;
+    background: rgba(51, 51, 51, 0.8);
   }
 }
 </style>

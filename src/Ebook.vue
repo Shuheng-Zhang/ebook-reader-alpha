@@ -20,6 +20,8 @@
       @setTheme="setTheme"
       :bookAvailable="bookAvailable"
       @onProgressChange="onProgressChange"
+      :navigation="navigation"
+      @jumpTo="jumpTo"
     ></MenuBar>
   </div>
 </template>
@@ -85,7 +87,8 @@ export default {
           }
         }
       ],
-      bookAvailable: false // 电子书可用状态
+      bookAvailable: false, // 电子书可用状态
+      navigation: {}
     };
   },
   methods: {
@@ -112,13 +115,20 @@ export default {
       // 配置默认主题样式
       this.themes.select(this.defaultTheme);
 
-      // 获取 Location 对象
-      this.book.ready.then(() => {
-        return this.book.locations.generate();
-      }).then(res => {
-        this.locations = this.book.locations
-        this.bookAvailable = true;
-      });
+      // 处理电子书加载完成后事件处理
+      this.book.ready
+        .then(() => {
+          // 获取 Navigation 对象
+          this.navigation = this.book.navigation;
+          // 生成 Locations 对象
+          return this.book.locations.generate();
+        })
+        .then(res => {
+          // 获取 Locations 对象
+          this.locations = this.book.locations;
+          // 设置电子书可用状态
+          this.bookAvailable = true;
+        });
     },
     // 上一页
     prevPage() {
@@ -139,6 +149,12 @@ export default {
       if (!this.ifTitleAndMenuShow) {
         this.$refs.menuBar.hideSetting();
       }
+    },
+    // 隐藏目录面板、标题栏及菜单栏
+    hideTitleAndMenu() {
+      this.ifTitleAndMenuShow = false;
+      this.$refs.menuBar.hideSetting();
+      // this.$refs.titleBar.hideContent();
     },
     // 设置字体字号
     setFontSize(fontSize) {
@@ -162,8 +178,14 @@ export default {
     // progress 数值为[0-100]
     onProgressChange(progress) {
       const percentage = progress / 100;
-      const location = percentage > 0 ? this.locations.cfiFromPercentage(percentage) : 0
-      this.rendition.display(location)
+      const location =
+        percentage > 0 ? this.locations.cfiFromPercentage(percentage) : 0;
+      this.rendition.display(location);
+    },
+    // 根据目录链接跳转到页面
+    jumpTo(href) {
+      this.rendition.display(href);
+      this.hideTitleAndMenu();
     }
   },
   mounted() {
