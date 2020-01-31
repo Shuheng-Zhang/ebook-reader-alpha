@@ -10,7 +10,7 @@
           <span class="icon-menu icon"></span>
         </div>
         <div class="icon-wrapper">
-          <span class="icon-progress icon"></span>
+          <span class="icon-progress icon" @click="showSetting(2)"></span>
         </div>
         <div class="icon-wrapper">
           <span class="icon-bright icon" @click="showSetting(1)"></span>
@@ -48,6 +48,14 @@
             <div class="text" :class="{ 'selected': index === defaultTheme }">{{ item.name }}</div>
           </div>
         </div>
+        <div class="setting-progress" v-else-if="showTag === 2">
+          <div class="progress-wrapper">
+            <input class="progress" type="range" min="0" max="100" step="0.1" @change="onProgressChange($event.target.value)" @input="onProgressInput($event.target.value)" :value="progress" :disable="!bookAvailable" ref="progress">
+          </div>
+          <div class="text-wrapper">
+            <span>{{ bookAvailable ? progress + '%' : '加载中...' }}</span>
+          </div>
+        </div>
       </div>
     </transition>
   </div>
@@ -63,12 +71,14 @@ export default {
     defalutFontSize: Number,
     fontSizeList: Array,
     defaultTheme: Number,
-    themeList: Array
+    themeList: Array,
+    bookAvailable: Boolean
   },
   data() {
     return {
       ifSettingShow: false,
-      showTag: -1
+      showTag: -1,
+      progress: 0
     };
   },
   methods: {
@@ -88,6 +98,17 @@ export default {
     // 设置主题样式
     setTheme(index) {
       this.$emit('setTheme', index)
+    },
+    // 进度条拖动时触发事件
+    // 变更进度条颜色样式
+    onProgressInput(progress) {
+      this.progress = progress
+      this.$refs.progress.style.backgroundSize = `${this.progress}% 100%`
+    },
+    // 进度条被松开时触发事件
+    // 调用父组件 onProgressChange() 方法根据进度条数值跳转到指定页面
+    onProgressChange(progress) {
+      this.$emit('onProgressChange', progress)
     }
   }
 };
@@ -216,6 +237,46 @@ export default {
             color: #333333;
           }
         }
+      }
+    }
+    .setting-progress {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      .progress-wrapper {
+        width: 100%;
+        height: 100%;
+        @include center;
+        padding: 0 px2rem(30);
+        box-sizing: border-box;
+        .progress {
+          width: 100%;
+          -webkit-appearance: none;
+          height: px2rem(2);
+          background: -webkit-linear-gradient(#999999, #999999) no-repeat, #dddddd;
+          background-size: 0 100%;
+          &:focus {
+            outline: none
+          }
+          &::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: px2rem(20);
+            width: px2rem(20);
+            border-radius: 50%;
+            background-color: #ffffff;
+            box-shadow: 0 4px 4px rgba(0, 0, 0, 0.15);
+            border: px2rem(1) solid #dddddd;
+          }
+        }
+      }
+      .text-wrapper {
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        width: 100%;
+        color: #333333;
+        font-size: px2rem(12);
+        text-align: center;
       }
     }
   }

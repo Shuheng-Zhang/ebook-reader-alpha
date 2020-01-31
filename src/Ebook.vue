@@ -18,6 +18,8 @@
       :themeList="themeList"
       :defaultTheme="defaultTheme"
       @setTheme="setTheme"
+      :bookAvailable="bookAvailable"
+      @onProgressChange="onProgressChange"
     ></MenuBar>
   </div>
 </template>
@@ -82,7 +84,8 @@ export default {
             }
           }
         }
-      ]
+      ],
+      bookAvailable: false // 电子书可用状态
     };
   },
   methods: {
@@ -98,16 +101,24 @@ export default {
       });
       this.rendition.display();
 
-      // 获取Theme对象
+      // 获取 Theme 对象
       this.themes = this.rendition.themes;
 
       // 设置默认字体字号
       this.setFontSize(this.defalutFontSize);
 
       // 注册主题样式
-      this.registerTheme()
+      this.registerTheme();
       // 配置默认主题样式
-      this.themes.select(this.defaultTheme)
+      this.themes.select(this.defaultTheme);
+
+      // 获取 Location 对象
+      this.book.ready.then(() => {
+        return this.book.locations.generate();
+      }).then(res => {
+        this.locations = this.book.locations
+        this.bookAvailable = true;
+      });
     },
     // 上一页
     prevPage() {
@@ -139,13 +150,20 @@ export default {
     // 注册主题样式
     registerTheme() {
       this.themeList.forEach(theme => {
-        this.themes.register(theme.name, theme.style)
-      })
+        this.themes.register(theme.name, theme.style);
+      });
     },
     // 设置主题样式
     setTheme(index) {
-      this.themes.select(this.themeList[index].name)
-      this.defaultTheme = index
+      this.themes.select(this.themeList[index].name);
+      this.defaultTheme = index;
+    },
+    // 根据进度百分比跳转页面
+    // progress 数值为[0-100]
+    onProgressChange(progress) {
+      const percentage = progress / 100;
+      const location = percentage > 0 ? this.locations.cfiFromPercentage(percentage) : 0
+      this.rendition.display(location)
     }
   },
   mounted() {
